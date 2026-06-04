@@ -6,6 +6,7 @@ import HamburgerMenu from "./hamburger-menu"
 import TicketSelectorModal from "./ticket-selector-modal"
 import { useEventById } from "@/lib/events-store"
 import { useAfterMovieMedia } from "@/lib/aftermovie-store"
+import { useSiteTexts } from "@/lib/site-texts-store"
 
 interface EventDetailProps {
   onNavigate?: (page: string) => void
@@ -102,6 +103,9 @@ export default function EventDetail({ onNavigate }: EventDetailProps) {
   // Get aftermovie media from store
   const { media: galleryMedia, isLoaded: mediaLoaded } = useAfterMovieMedia("babadook")
   
+  // Get site texts from store
+  const { texts: siteTexts } = useSiteTexts()
+  
   // Target date from store or default: October 30, 2026
   const targetDate = new Date(event?.countdownDate || '2026-10-30T00:00:00')
 
@@ -182,11 +186,11 @@ export default function EventDetail({ onNavigate }: EventDetailProps) {
             <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-thin tracking-wider mb-1 sm:mb-2 text-white leading-none" style={{ fontFamily: '"Inter", sans-serif' }}>
             {event?.name || "BADADOOK 2026"}
           </h1>
-            <p className="text-red-500 text-sm sm:text-base md:text-lg lg:text-xl tracking-wider mb-2 sm:mb-4">{event?.description || "6TA EDICION"}</p>
+            <p className="text-red-500 text-sm sm:text-base md:text-lg lg:text-xl tracking-wider mb-2 sm:mb-4">{event?.description || siteTexts.babadookHeroDescription}</p>
             <p className="text-white/70 text-[10px] sm:text-xs md:text-sm lg:text-base leading-relaxed max-w-md">
-              SEXTO ANIVERSARIO DE 1OF1.<br />
-              SEIS AÑOS CONSTRUYENDO<br />
-              LA EXPERIENCIA MÁS INMERSIVA DEL PA��S.
+              {siteTexts.babadookHeroLine1}<br />
+              {siteTexts.babadookHeroLine2}<br />
+              {siteTexts.babadookHeroLine3}
             </p>
 
             <div className="flex flex-col gap-2 sm:gap-3 mt-4 sm:mt-6">
@@ -213,7 +217,7 @@ export default function EventDetail({ onNavigate }: EventDetailProps) {
         {/* Stage Title */}
         <div className="flex items-center gap-2 sm:gap-4 justify-center mb-4 sm:mb-6 md:mb-8">
           <div className="h-px bg-gradient-to-r from-transparent to-amber-500/50 flex-1 max-w-[60px] sm:max-w-[80px] md:max-w-[100px]" />
-          <h2 className="text-amber-500 text-[10px] sm:text-xs md:text-sm tracking-[0.2em] sm:tracking-[0.3em] uppercase">{event?.stage || "Etapa Creyentes"}</h2>
+          <h2 className="text-amber-500 text-[10px] sm:text-xs md:text-sm tracking-[0.2em] sm:tracking-[0.3em] uppercase">{event?.stage || siteTexts.ticketSectionStageTitle}</h2>
           <div className="h-px bg-gradient-to-l from-transparent to-amber-500/50 flex-1 max-w-[60px] sm:max-w-[80px] md:max-w-[100px]" />
         </div>
 
@@ -230,8 +234,8 @@ export default function EventDetail({ onNavigate }: EventDetailProps) {
                 </svg>
               </div>
               <div>
-                <h3 className="text-white font-semibold tracking-wide text-[10px] sm:text-xs md:text-base">TICKET</h3>
-                <p className="text-white/50 text-[7px] sm:text-[9px] md:text-xs tracking-wide">ACCESO GENERAL AL EVENTO</p>
+                <h3 className="text-white font-semibold tracking-wide text-[10px] sm:text-xs md:text-base">{siteTexts.ticketSectionTicketLabel}</h3>
+                <p className="text-white/50 text-[7px] sm:text-[9px] md:text-xs tracking-wide">{siteTexts.ticketSectionTicketSubtitle}</p>
               </div>
             </div>
             <div className="mb-2 sm:mb-3 md:mb-4">
@@ -239,7 +243,7 @@ export default function EventDetail({ onNavigate }: EventDetailProps) {
               <span className="text-white/50 text-[10px] sm:text-xs md:text-sm ml-1 sm:ml-2">COP</span>
             </div>
             <button onClick={() => setIsTicketModalOpen(true)} className="w-full py-2 sm:py-2.5 md:py-3 border border-white/30 text-white text-[9px] sm:text-[10px] md:text-sm tracking-widest hover:bg-white/10 transition-colors">
-              COMPRAR
+              {siteTexts.buyButtonText}
             </button>
           </div>
 
@@ -248,7 +252,7 @@ export default function EventDetail({ onNavigate }: EventDetailProps) {
             {/* Best Seller Badge */}
             <div className="absolute -top-2 sm:-top-3 left-1/2 -translate-x-1/2">
               <span className="bg-amber-500 text-black text-[6px] sm:text-[8px] md:text-[10px] tracking-wider px-1.5 sm:px-2 md:px-3 py-0.5 sm:py-1 font-medium whitespace-nowrap">
-                MÁS VENDIDA
+                {siteTexts.ticketSectionBestSellerBadge}
               </span>
             </div>
             <div className="flex items-start gap-2 sm:gap-3 md:gap-4 mb-2 sm:mb-3 md:mb-4">
@@ -260,8 +264,8 @@ export default function EventDetail({ onNavigate }: EventDetailProps) {
                 </svg>
               </div>
               <div>
-                <h3 className="text-white font-semibold tracking-wide text-[10px] sm:text-xs md:text-base">MESA VIP</h3>
-                <p className="text-white/50 text-[7px] sm:text-[9px] md:text-xs tracking-wide">10 PERSONAS</p>
+                <h3 className="text-white font-semibold tracking-wide text-[10px] sm:text-xs md:text-base">{siteTexts.ticketSectionVipLabel}</h3>
+                <p className="text-white/50 text-[7px] sm:text-[9px] md:text-xs tracking-wide">{siteTexts.ticketSectionVipSubtitle}</p>
               </div>
             </div>
             <div className="mb-1">
@@ -270,7 +274,7 @@ export default function EventDetail({ onNavigate }: EventDetailProps) {
             </div>
             <p className="text-white/40 text-[7px] sm:text-[9px] md:text-xs mb-2 sm:mb-3 md:mb-4">{event?.vipNote || "NORMALMENTE $700K - $2M"}</p>
             <button onClick={() => setIsTicketModalOpen(true)} className="w-full py-2 sm:py-2.5 md:py-3 border border-amber-500 text-amber-500 text-[9px] sm:text-[10px] md:text-sm tracking-widest hover:bg-amber-500 hover:text-black transition-colors">
-              COMPRAR
+              {siteTexts.buyButtonText}
             </button>
           </div>
         </div>
@@ -281,7 +285,7 @@ export default function EventDetail({ onNavigate }: EventDetailProps) {
             <rect x="3" y="11" width="18" height="11" rx="2" />
             <path d="M7 11V7a5 5 0 0110 0v4" />
           </svg>
-          <span className="text-center">PRECIOS EXCLUSIVOS ETAPA CREYENTES. POR TIEMPO LIMITADO.</span>
+          <span className="text-center">{siteTexts.ticketSectionPriceNote}</span>
         </div>
       </section>
 
@@ -296,11 +300,11 @@ export default function EventDetail({ onNavigate }: EventDetailProps) {
         <div className="absolute inset-0 bg-black/40" />
         <div className="relative z-10 text-center px-3 sm:px-4">
           <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-light italic tracking-wide text-white mb-1 sm:mb-2">
-            ASEGURA TU LUGAR
+            {siteTexts.ctaSectionTitle}
           </h2>
-          <p className="text-white/60 text-[10px] sm:text-xs md:text-sm tracking-wider mb-4 sm:mb-6">LOS CUPOS SON LIMITADOS.</p>
+          <p className="text-white/60 text-[10px] sm:text-xs md:text-sm tracking-wider mb-4 sm:mb-6">{siteTexts.ctaSectionSubtitle}</p>
           <button onClick={() => setIsTicketModalOpen(true)} className="inline-flex items-center gap-1.5 sm:gap-2 px-4 sm:px-6 md:px-8 py-2 sm:py-2.5 md:py-3 bg-amber-500/20 border border-amber-500 text-amber-500 text-[10px] sm:text-xs md:text-sm tracking-widest hover:bg-amber-500 hover:text-black transition-all duration-300">
-            COMPRAR ENTRADAS
+            {siteTexts.ctaSectionButton}
             <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M5 12h14M12 5l7 7-7 7" />
             </svg>
@@ -312,14 +316,14 @@ export default function EventDetail({ onNavigate }: EventDetailProps) {
       <section className="relative py-8 sm:py-10 md:py-12 px-3 sm:px-4 md:px-8">
         <div className="max-w-4xl mx-auto flex items-center justify-between bg-gradient-to-r from-black via-black/80 to-transparent border border-white/10 overflow-hidden">
           <div className="p-4 sm:p-5 md:p-6 lg:p-8">
-            <span className="text-amber-500/70 text-[8px] sm:text-[10px] md:text-xs tracking-[0.15em] sm:tracking-[0.2em] uppercase">Revive la experiencia</span>
+            <span className="text-amber-500/70 text-[8px] sm:text-[10px] md:text-xs tracking-[0.15em] sm:tracking-[0.2em] uppercase">{siteTexts.aftermovieLabel}</span>
             <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight mt-0.5 sm:mt-1 mb-2 sm:mb-3">BABADOOK</h3>
             <button 
               onClick={() => setIsGalleryOpen(!isGalleryOpen)}
               className="flex items-center gap-1.5 sm:gap-2 text-white/80 hover:text-amber-500 transition-colors"
             >
               <Play className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4" />
-              <span className="text-[10px] sm:text-xs md:text-sm tracking-wider">VER AFTERMOVIE</span>
+              <span className="text-[10px] sm:text-xs md:text-sm tracking-wider">{siteTexts.aftermovieButtonText}</span>
               {isGalleryOpen ? <ChevronUp className="w-3 h-3 sm:w-4 sm:h-4" /> : <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4" />}
             </button>
           </div>
