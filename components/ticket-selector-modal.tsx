@@ -1,19 +1,22 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { X, Calendar, MapPin, Ticket } from "lucide-react"
+import { useSignatureEvents, useWeekendEvents, type EventOption } from "@/lib/events-store"
 
-interface Event {
+interface TicketType {
+  name: string
+  price: string
+  description: string
+}
+
+interface DisplayEvent {
   id: string
   name: string
   date: string
   location: string
   image: string
-  ticketTypes: {
-    name: string
-    price: string
-    description: string
-  }[]
+  ticketTypes: TicketType[]
   whatsappNumber: string
   accentColor: string
 }
@@ -21,143 +24,50 @@ interface Event {
 interface EventCategory {
   id: string
   name: string
-  events: Event[]
+  events: DisplayEvent[]
 }
 
-const eventCategories: EventCategory[] = [
-  {
-    id: "signature",
-    name: "SIGNATURE EVENTS",
-    events: [
-      {
-        id: "championship",
-        name: "THE 1 OF 1 CHAMPIONSHIP",
-        date: "Próximamente",
-        location: "Barranquilla",
-        image: "https://f005.backblazeb2.com/file/b21of1firm/background/CHAMPtarj2.jpg",
-        ticketTypes: [
-          { name: "Full Pass", price: "$250.000 COP", description: "Acceso a las 4 fechas y todos los combates" },
-          { name: "Fight Pass", price: "$100.000 COP", description: "Acceso a 1 fecha y todos los combates" },
-        ],
-        whatsappNumber: "573003676521",
-        accentColor: "red",
-      },
-      {
-        id: "celestial",
-        name: "MISS 1 OF 1 CELESTIAL",
-        date: "Próximamente",
-        location: "Barranquilla",
-        image: "https://f005.backblazeb2.com/file/b21of1firm/background/MChome.png",
-        ticketTypes: [
-          { name: "Ticket", price: "$45.000 COP", description: "Acceso general al evento" },
-          { name: "Mesa VIP", price: "$500.000 COP", description: "Mesa VIP para 10 personas" },
-        ],
-        whatsappNumber: "573003676521",
-        accentColor: "amber",
-      },
-      {
-        id: "animal",
-        name: "ANIMAL",
-        date: "17 Mayo 2027",
-        location: "Discolo Night Club, Barranquilla",
-        image: "https://f005.backblazeb2.com/file/b21of1firm/background/ANexp.jpg",
-        ticketTypes: [
-          { name: "Ticket", price: "$45.000 COP", description: "Acceso general al evento" },
-          { name: "Mesa VIP 10 Personas", price: "$500.000 COP", description: "Experiencia VIP para grupos de 10 personas" },
-        ],
-        whatsappNumber: "573003676521",
-        accentColor: "amber",
-      },
-      {
-        id: "la-festa",
-        name: "LA FESTA",
-        date: "15 Febrero 2027",
-        location: "Barranquilla",
-        image: "https://f005.backblazeb2.com/file/b21of1firm/background/LFESTAhome.png",
-        ticketTypes: [
-          { name: "Ticket", price: "$45.000 COP", description: "Acceso general al evento" },
-          { name: "Mesa VIP", price: "$500.000 COP", description: "Mesa VIP para 10 personas" },
-        ],
-        whatsappNumber: "573003676521",
-        accentColor: "pink",
-      },
-      {
-        id: "luna-llena",
-        name: "LUNA LLENA",
-        date: "Próximamente",
-        location: "Barranquilla",
-        image: "https://f005.backblazeb2.com/file/b21of1firm/background/LLback.png",
-        ticketTypes: [
-          { name: "Ticket", price: "$45.000 COP", description: "Acceso general al evento" },
-          { name: "Mesa VIP", price: "$500.000 COP", description: "Mesa VIP para 10 personas" },
-        ],
-        whatsappNumber: "573003676521",
-        accentColor: "purple",
-      },
-      {
-        id: "babadook",
-        name: "BABADOOK",
-        date: "31 Octubre 2027",
-        location: "Por confirmar",
-        image: "https://f005.backblazeb2.com/file/b21of1firm/background/BDsig.png",
-        ticketTypes: [
-          { name: "Ticket", price: "$45.000 COP", description: "Acceso general al evento" },
-          { name: "Mesa VIP", price: "$500.000 COP", description: "Mesa VIP para 10 personas" },
-        ],
-        whatsappNumber: "573003676521",
-        accentColor: "orange",
-      },
-    ]
-  },
-  {
-    id: "weekend",
-    name: "WEEKEND EVENTS",
-    events: [
-      {
-        id: "elite-weekend-viernes",
-        name: "ELITE WEEKEND - VIERNES",
-        date: "Viernes 16 de Mayo",
-        location: "Discolo Night Club, Barranquilla",
-        image: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=600&q=80",
-        ticketTypes: [
-          { name: "Ticket", price: "$45.000 COP", description: "Acceso general al evento" },
-          { name: "Mesa VIP 10 Personas", price: "$500.000 COP", description: "Experiencia VIP para grupos de 10 personas" },
-        ],
-        whatsappNumber: "573003676521",
-        accentColor: "amber",
-      },
-      {
-        id: "secret-party-sabado",
-        name: "SECRET PARTY VIP - SÁBADO",
-        date: "Sábado 17 de Mayo",
-        location: "Discolo Night Club, Barranquilla",
-        image: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=600&q=80",
-        ticketTypes: [
-          { name: "Ticket", price: "$45.000 COP", description: "Acceso general al evento" },
-          { name: "Mesa VIP 10 Personas", price: "$500.000 COP", description: "Experiencia VIP para grupos de 10 personas" },
-        ],
-        whatsappNumber: "573003676521",
-        accentColor: "amber",
-      },
-      {
-        id: "animal-aftermovie-domingo",
-        name: "ANIMAL AFTERMOVIE - DOMINGO",
-        date: "Domingo 18 de Mayo",
-        location: "Discolo Night Club, Barranquilla",
-        image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&q=80",
-        ticketTypes: [
-          { name: "Ticket", price: "$45.000 COP", description: "Acceso general al evento" },
-          { name: "Mesa VIP 10 Personas", price: "$500.000 COP", description: "Experiencia VIP para grupos de 10 personas" },
-        ],
-        whatsappNumber: "573003676521",
-        accentColor: "amber",
-      },
-    ]
+// Helper to convert EventOption to DisplayEvent
+function convertToDisplayEvent(event: EventOption): DisplayEvent {
+  const accentColors: Record<string, string> = {
+    "babadook": "orange",
+    "luna-llena": "purple",
+    "la-festa": "pink",
+    "animal": "amber",
+    "celestial": "amber",
+    "championship": "red",
   }
-]
-
-// Helper to get all events flat
-const getAllEvents = () => eventCategories.flatMap(cat => cat.events)
+  
+  // Special ticket types for championship
+  const ticketTypes: TicketType[] = event.id === "championship" 
+    ? [
+        { name: "Full Pass", price: event.ticketPrice || "$250.000 COP", description: "Acceso a las 4 fechas y todos los combates" },
+        { name: "Fight Pass", price: event.vipPrice || "$100.000 COP", description: "Acceso a 1 fecha y todos los combates" },
+      ]
+    : [
+        { 
+          name: "Ticket", 
+          price: event.ticketPrice || "$45.000 COP", 
+          description: "Acceso general al evento" 
+        },
+        { 
+          name: event.vipNote?.includes("10") ? "Mesa VIP 10 Personas" : "Mesa VIP", 
+          price: event.vipPrice || "$500.000 COP", 
+          description: event.vipNote || "Mesa VIP para 10 personas" 
+        },
+      ]
+  
+  return {
+    id: event.id,
+    name: event.name,
+    date: event.date || "Próximamente",
+    location: event.location || "Barranquilla",
+    image: event.image,
+    ticketTypes,
+    whatsappNumber: "573003676521",
+    accentColor: accentColors[event.id] || "amber",
+  }
+}
 
 function WhatsAppIcon() {
   return (
@@ -174,20 +84,50 @@ interface TicketSelectorModalProps {
 }
 
 export default function TicketSelectorModal({ isOpen, onClose, preSelectedEvent }: TicketSelectorModalProps) {
-  const allEvents = getAllEvents()
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(
-    preSelectedEvent ? allEvents.find(e => e.id === preSelectedEvent) || null : null
-  )
-  const [selectedTicket, setSelectedTicket] = useState<{ name: string; price: string; description: string } | null>(null)
+  // Get events from store
+  const { events: signatureEvents, isLoaded: sigLoaded } = useSignatureEvents()
+  const { events: weekendEvents, isLoaded: weekLoaded } = useWeekendEvents()
+  
+  // Build event categories from store data
+  const eventCategories = useMemo<EventCategory[]>(() => {
+    return [
+      {
+        id: "signature",
+        name: "SIGNATURE EVENTS",
+        events: signatureEvents.map(convertToDisplayEvent)
+      },
+      {
+        id: "weekend",
+        name: "WEEKEND EVENTS",
+        events: weekendEvents.map(convertToDisplayEvent)
+      }
+    ]
+  }, [signatureEvents, weekendEvents])
+  
+  // Get all events flat
+  const allEvents = useMemo(() => eventCategories.flatMap(cat => cat.events), [eventCategories])
+  
+  const [selectedEvent, setSelectedEvent] = useState<DisplayEvent | null>(null)
+  const [selectedTicket, setSelectedTicket] = useState<TicketType | null>(null)
+  
+  // Update selected event when preSelectedEvent changes or events load
+  useEffect(() => {
+    if (preSelectedEvent && allEvents.length > 0) {
+      const found = allEvents.find(e => e.id === preSelectedEvent)
+      if (found) {
+        setSelectedEvent(found)
+      }
+    }
+  }, [preSelectedEvent, allEvents])
 
   if (!isOpen) return null
 
-  const handleSelectEvent = (event: Event) => {
+  const handleSelectEvent = (event: DisplayEvent) => {
     setSelectedEvent(event)
     setSelectedTicket(null)
   }
 
-  const handleSelectTicket = (ticket: { name: string; price: string; description: string }) => {
+  const handleSelectTicket = (ticket: TicketType) => {
     setSelectedTicket(ticket)
   }
 
