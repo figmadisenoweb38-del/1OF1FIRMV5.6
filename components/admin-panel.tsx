@@ -20,14 +20,11 @@ import {
   Trash2,
   Play,
   Film,
-  Video,
-  Type,
-  RotateCcw
+  Video
 } from "lucide-react"
 import AdminUniversePanel from "./admin-universe-panel"
 import { useAllEvents, type EventOption } from "@/lib/events-store"
 import { useAfterMovieMedia, type AfterMovieMedia } from "@/lib/aftermovie-store"
-import { useSiteTexts, textFieldsConfig, sectionLabels, type SiteTexts } from "@/lib/site-texts-store"
 
 interface AdminPanelProps {
   onNavigate: (page: string) => void
@@ -124,10 +121,6 @@ export default function AdminPanel({ onNavigate, onLogout }: AdminPanelProps) {
   const [newMediaAlt, setNewMediaAlt] = useState("")
   const [isMediaUploading, setIsMediaUploading] = useState(false)
   const [mediaUploadError, setMediaUploadError] = useState<string | null>(null)
-  
-  // Site Texts State
-  const { texts: siteTexts, updateText, updateMultipleTexts, resetToDefaults: resetSiteTexts, isLoaded: textsLoaded } = useSiteTexts()
-  const [expandedTextSection, setExpandedTextSection] = useState<string | null>("hero")
 
   const allEvents = [...signatureEvents, ...weekendEvents, { id: "other", name: "OTHER EVENT", subtitle: "TELL US MORE", image: "", category: "weekend" as const, isEditable: false }]
   const selectedEventData = allEvents.find(e => e.id === selectedEvent)
@@ -701,95 +694,6 @@ export default function AdminPanel({ onNavigate, onLogout }: AdminPanelProps) {
 
         {/* 1 OF 1 UNIVERSE Section */}
         <AdminUniversePanel />
-
-        {/* SITE TEXTS Section */}
-        <div className="mt-6 sm:mt-8">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-            <div className="flex items-center gap-2">
-              <Type className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-500" />
-              <h2 className="text-lg sm:text-xl font-thin tracking-wider text-white italic">TEXTOS DEL SITIO</h2>
-            </div>
-            <button 
-              onClick={resetSiteTexts}
-              className="px-3 sm:px-4 py-2 border border-white/20 text-white/60 text-[10px] sm:text-xs tracking-[0.15em] hover:bg-white/10 hover:text-white transition-all duration-300 flex items-center gap-2 w-fit"
-            >
-              <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4" />
-              RESTAURAR PREDETERMINADOS
-            </button>
-          </div>
-
-          <div className="bg-white/5 rounded-xl p-4 sm:p-6 border border-white/10">
-            <p className="text-white/50 text-[10px] sm:text-xs mb-4">
-              Edita los textos que aparecen en las diferentes secciones del sitio. Los cambios se aplican automaticamente.
-            </p>
-
-            {/* Sections Accordion */}
-            <div className="space-y-3">
-              {(["hero", "tickets", "cta", "aftermovie", "footer", "general"] as const).map((section) => {
-                const fieldsInSection = textFieldsConfig.filter(f => f.section === section)
-                const isExpanded = expandedTextSection === section
-                
-                return (
-                  <div key={section} className="border border-white/10 rounded-lg overflow-hidden">
-                    {/* Section Header */}
-                    <button
-                      onClick={() => setExpandedTextSection(isExpanded ? null : section)}
-                      className={`w-full flex items-center justify-between p-3 sm:p-4 transition-colors ${
-                        isExpanded ? "bg-cyan-500/10 border-b border-cyan-500/20" : "bg-white/5 hover:bg-white/10"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <Type className={`w-3 h-3 sm:w-4 sm:h-4 ${isExpanded ? "text-cyan-500" : "text-white/40"}`} />
-                        <span className={`text-[10px] sm:text-xs tracking-[0.15em] ${isExpanded ? "text-cyan-500" : "text-white/70"}`}>
-                          {sectionLabels[section]}
-                        </span>
-                        <span className="text-white/30 text-[9px] sm:text-[10px]">({fieldsInSection.length} campos)</span>
-                      </div>
-                      <ChevronDown className={`w-4 h-4 text-white/40 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
-                    </button>
-                    
-                    {/* Section Content */}
-                    {isExpanded && (
-                      <div className="p-3 sm:p-4 space-y-4 bg-black/20">
-                        {fieldsInSection.map((field) => (
-                          <div key={field.key}>
-                            <label className="block text-white/50 text-[9px] sm:text-[10px] tracking-[0.15em] mb-1.5">
-                              {field.label}
-                            </label>
-                            {field.multiline ? (
-                              <textarea
-                                value={siteTexts[field.key]}
-                                onChange={(e) => updateText(field.key, e.target.value)}
-                                placeholder={field.description}
-                                rows={3}
-                                className="w-full bg-white/5 border border-white/20 rounded-lg py-2.5 px-3 text-white text-xs sm:text-sm placeholder:text-white/30 focus:outline-none focus:border-cyan-500/50 resize-none"
-                              />
-                            ) : (
-                              <input
-                                type="text"
-                                value={siteTexts[field.key]}
-                                onChange={(e) => updateText(field.key, e.target.value)}
-                                placeholder={field.description}
-                                className="w-full bg-white/5 border border-white/20 rounded-lg py-2.5 px-3 text-white text-xs sm:text-sm placeholder:text-white/30 focus:outline-none focus:border-cyan-500/50"
-                              />
-                            )}
-                            <p className="text-white/30 text-[8px] sm:text-[9px] mt-1">{field.description}</p>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-
-            <div className="mt-4 pt-4 border-t border-white/10">
-              <p className="text-white/40 text-[9px] sm:text-[10px]">
-                Los textos editados aqui se reflejan en la pagina de evento principal (BABADOOK) y otras secciones del sitio.
-              </p>
-            </div>
-          </div>
-        </div>
 
         {/* VER AFTERMOVIE Section */}
         <div className="mt-6 sm:mt-8">
